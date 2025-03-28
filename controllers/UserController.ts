@@ -36,6 +36,20 @@ class UserController {
     try {
     } catch (e) {}
   }
+  async logout(
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void | object> {
+    try {
+      const { refreshToken } = req.cookies;
+      const token = await tokenService.removeToken(refreshToken);
+      res.clearCookie("refreshToken");
+      res.json(token);
+    } catch (error) {
+      return next(error);
+    }
+  }
   async refresh(req: Request, res: Response, next: NextFunction) {
     try {
       const { refreshToken } = req.cookies;

@@ -55,7 +55,6 @@ class TokenService {
       refreshToken: refreshToken,
     });
   }
-
   async removeToken(refreshToken: string) {
     return await TokenModel.destroy({ where: { refreshToken: refreshToken } });
   }
