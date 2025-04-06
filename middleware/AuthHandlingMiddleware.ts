@@ -1,4 +1,4 @@
-import { NextFunction, Request } from "express";
+import { NextFunction, Request, Response } from "express";
 import ApiError from "../error/ApiError";
 import tokenService from "../services/token-service";
 
@@ -12,8 +12,12 @@ export default function (req: Request, res: Response, next: NextFunction) {
     if (!accessToken) {
       return next(ApiError.UnauthorizedError());
     }
+    const user = tokenService.validateAccessToken(accessToken);
+    if (user === null) {
+      return next(ApiError.UnauthorizedError());
+    }
     // @ts-ignore
-    req.user = tokenService.validateAccessToken(accessToken);
+    req.user = user;
     next();
   } catch (error) {
     console.log(error);

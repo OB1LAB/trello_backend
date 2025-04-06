@@ -4,11 +4,12 @@ import { TokenModel } from "../models/models";
 interface IPayload {
   userName: string;
   id: number;
+  isAdmin: boolean;
 }
 
 class TokenService {
-  generateTokens(userName: string, id: number) {
-    const payload = { userName, id };
+  generateTokens(userName: string, id: number, isAdmin: boolean) {
+    const payload = { userName, id, isAdmin };
     const accessToken = jwt.sign(
       payload,
       process.env.SECRET_ACCESS_KEY || "accessToken",

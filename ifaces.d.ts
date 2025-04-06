@@ -32,20 +32,39 @@ interface IColumn {
   tasks: ITask[];
 }
 
-export interface ITrelloJson {
-  columns: IColumn[];
-}
-
 export interface ITrello {
   id: number;
-  content: ITrelloJson;
+  content: IColumn[];
   trelloName: string;
-  createdUser?: number;
+  createdBy: number;
 }
+
+export interface ICacheTrello {
+  [trelloId: number]: {
+    accessUsers: number[];
+    createdUser: number;
+    trello: IColumn[];
+    trelloName: string;
+  };
+}
+
+export interface ICacheUserTrelloList {
+  [userId: number]: number[];
+}
+
+export interface ICacheUserCreateTrelloList {
+  [userId: number]: number[];
+}
+
 interface TrelloCreation extends Optional<ITrello, "id"> {}
 export interface ITrelloInstance
   extends Model<ITrello, TrelloCreation>,
-    ITrello {}
+    ITrello {
+  users: IUser[];
+  setUsers: (users: number[]) => Promise<void>;
+}
+
+export type IFakeSizeSide = "top" | "right" | "bottom" | "left";
 
 interface IUserAuth {
   name: string;

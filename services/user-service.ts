@@ -1,13 +1,13 @@
 import { UserModel } from "../models/models";
 
 class UserService {
-  async getOne(userId: number) {
+  getOne(userId: number) {
     return UserModel.findByPk(userId);
   }
-  async getOneByName(name: string) {
+  getOneByName(name: string) {
     return UserModel.findOne({ where: { name } });
   }
-  async create(
+  create(
     name: string,
     password: string,
     isAdmin = false,
@@ -20,7 +20,19 @@ class UserService {
       isDeactivate,
     });
   }
-  async getAll() {
+  editUser(userId: number, isAdmin: boolean, password?: string) {
+    if (!password) {
+      return UserModel.update({ isAdmin }, { where: { id: userId } });
+    }
+    return UserModel.update({ isAdmin, password }, { where: { id: userId } });
+  }
+  changePassword(userId: number, newPassword: string) {
+    return UserModel.update(
+      { password: newPassword },
+      { where: { id: userId } },
+    );
+  }
+  getAll() {
     return UserModel.findAll();
   }
 }

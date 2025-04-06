@@ -57,6 +57,9 @@ const TrelloModel = sequelize.define<ITrelloInstance>(
     content: {
       type: DataTypes.JSONB,
     },
+    createdBy: {
+      type: DataTypes.INTEGER,
+    },
   },
   { timestamps: false },
 );
@@ -73,4 +76,4 @@ const User_TrelloPermission = sequelize.define(
 UserModel.belongsToMany(TrelloModel, { through: User_TrelloPermission });
 TrelloModel.belongsToMany(UserModel, { through: User_TrelloPermission });
 
-export { UserModel, TokenModel, TrelloModel };
+export { UserModel, TokenModel, TrelloModel, User_TrelloPermission };

@@ -3,7 +3,7 @@ import tokenService from "../services/token-service";
 import { Socket } from "socket.io";
 import { DefaultEventsMap } from "socket.io/dist/typed-events";
 import { ExtendedError } from "socket.io/dist/namespace";
-import UserService from "../services/user-service";
+import { getSocketToken } from "../cache";
 
 export default async function (
   socket: Socket<DefaultEventsMap, DefaultEventsMap, DefaultEventsMap, any>,
@@ -13,18 +13,15 @@ export default async function (
   if (!token) {
     next(ApiError.UnauthorizedError());
   }
-  const accessToken = token.split(" ")[1];
+  let accessToken = token.split(" ")[1];
   if (!accessToken) {
     return next(ApiError.UnauthorizedError());
   }
+  accessToken = getSocketToken(accessToken);
   const userData = tokenService.validateAccessToken(accessToken);
   if (!userData) {
     return next(ApiError.UnauthorizedError());
   }
-  const user = await UserService.getOne(userData.id);
-  if (!user) {
-    return next(ApiError.UnauthorizedError());
-  }
-  socket.data.user = user;
+  socket.data.user = userData;
   next();
 }
