@@ -6,41 +6,11 @@ import {
   IUserInstance,
 } from "./ifaces";
 import TrelloService from "./services/trello-service";
-import TokenService from "./services/token-service";
-import tokenService from "./services/token-service";
 
 let users: IUserInstance[] = [];
 let trello: ICacheTrello = {};
 let userTrelloList: ICacheUserTrelloList = {};
 let userCreateTrelloList: ICacheUserCreateTrelloList = {};
-const tokens: { [token: string]: string } = {};
-
-const updateSocketToken = (primaryToken: string) => {
-  let oldToken;
-  if (Object.keys(tokens).includes(primaryToken)) {
-    oldToken = tokens[primaryToken];
-  } else {
-    oldToken = primaryToken;
-  }
-  const user = tokenService.validateAccessToken(oldToken);
-  if (!user) {
-    return null;
-  }
-  const { accessToken } = TokenService.generateTokens(
-    user.userName,
-    user.id,
-    user.isAdmin,
-  );
-  tokens[primaryToken] = accessToken;
-  return accessToken;
-};
-
-const getSocketToken = (primaryToken: string) => {
-  if (!Object.keys(primaryToken).includes(primaryToken)) {
-    tokens[primaryToken] = primaryToken;
-  }
-  return tokens[primaryToken];
-};
 
 const updateTrello = async () => {
   const newTrello: ICacheTrello = {};
@@ -87,11 +57,4 @@ const getTrello = () => {
   return { trello, userTrelloList, userCreateTrelloList };
 };
 
-export {
-  getUsers,
-  updateUsers,
-  updateTrello,
-  getTrello,
-  getSocketToken,
-  updateSocketToken,
-};
+export { getUsers, updateUsers, updateTrello, getTrello };
