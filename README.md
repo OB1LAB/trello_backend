@@ -43,8 +43,8 @@
 
 ## Скриншоты
 
-![This is an alt text.](https://altromon.ob1lab.ru/static/trello/trello_0.png "Начальная страница.")
-![This is an alt text.](https://altromon.ob1lab.ru/static/trello/trello_1.png "Выбор трелло.")
-![This is an alt text.](https://altromon.ob1lab.ru/static/trello/trello_2.png "Выбранное трелло.")
-![This is an alt text.](https://altromon.ob1lab.ru/static/trello/trello_3.png "Изменение задачи.")
-![This is an alt text.](https://altromon.ob1lab.ru/static/trello/trello_4.png "Управление пользователями.")
+![Начальная страница.](https://altromon.ob1lab.ru/static/trello/trello_0.png "Начальная страница.")
+![Выбор трелло.](https://altromon.ob1lab.ru/static/trello/trello_1.png "Выбор трелло.")
+![Выбранное трелло.](https://altromon.ob1lab.ru/static/trello/trello_2.png "Выбранное трелло.")
+![Изменение задачи.](https://altromon.ob1lab.ru/static/trello/trello_3.png "Изменение задачи.")
+![Управление пользователями.](https://altromon.ob1lab.ru/static/trello/trello_4.png "Управление пользователями.")
