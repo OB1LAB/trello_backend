@@ -2,25 +2,34 @@ import { UserModel } from "../models/models";
 
 class UserService {
   getOne(userId: number) {
-    return UserModel.findByPk(userId);
+    return UserModel.findOne({ where: { id: userId, isDeactivate: false } });
   }
   getOneByName(name: string) {
-    return UserModel.findOne({ where: { name } });
+    return UserModel.findOne({ where: { name, isDeactivate: false } });
   }
   create(
     name: string,
     password: string,
     isAdmin = false,
-    isDeactivate = false,
+    createdByUserId: number,
   ) {
     return UserModel.create({
       name,
       password,
       isAdmin,
-      isDeactivate,
+      isDeactivate: false,
+      createdByUserId,
     });
   }
-  editUser(userId: number, isAdmin: boolean, password?: string) {
+  editUser(
+    userId: number,
+    isAdmin: boolean,
+    password?: string,
+    isDeactivate?: boolean,
+  ) {
+    if (isDeactivate) {
+      return UserModel.update({ isDeactivate }, { where: { id: userId } });
+    }
     if (!password) {
       return UserModel.update({ isAdmin }, { where: { id: userId } });
     }
@@ -33,7 +42,7 @@ class UserService {
     );
   }
   getAll() {
-    return UserModel.findAll();
+    return UserModel.findAll({ where: { isDeactivate: false } });
   }
 }
 

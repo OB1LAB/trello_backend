@@ -24,6 +24,9 @@ const UserModel = sequelize.define<IUserInstance>(
       type: DataTypes.BOOLEAN,
       defaultValue: false,
     },
+    createdByUserId: {
+      type: DataTypes.INTEGER,
+    },
   },
   { timestamps: false },
 );
@@ -59,6 +62,10 @@ const TrelloModel = sequelize.define<ITrelloInstance>(
     },
     createdBy: {
       type: DataTypes.INTEGER,
+    },
+    isDeactivate: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false,
     },
   },
   { timestamps: false },

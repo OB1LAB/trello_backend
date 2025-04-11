@@ -6,6 +6,7 @@ export interface IUser {
   password: string;
   isAdmin: boolean;
   isDeactivate: boolean;
+  createdByUserId: number;
 }
 interface UserCreation extends Optional<IUser, "id"> {}
 export interface IUserInstance extends Model<IUser, UserCreation>, IUser {}
@@ -37,6 +38,7 @@ export interface ITrello {
   content: IColumn[];
   trelloName: string;
   createdBy: number;
+  isDeactivate: boolean;
 }
 
 export interface ICacheTrello {
@@ -69,4 +71,21 @@ export type IFakeSizeSide = "top" | "right" | "bottom" | "left";
 interface IUserAuth {
   name: string;
   password: string;
+}
+
+interface ICacheUserAdmin {
+  id: number;
+  name: string;
+  isAdmin: boolean;
+  createdByUserId: number;
+}
+
+interface ICacheUserNotAdmin {
+  id: number;
+  name: string;
+}
+
+interface ICacheUserObject {
+  admin: ICacheUserAdmin[];
+  user: ICacheUserNotAdmin[];
 }

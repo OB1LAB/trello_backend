@@ -4,7 +4,7 @@ import bcrypt from "bcrypt";
 import ApiError from "../error/ApiError";
 import TokenService from "../services/token-service";
 import UserService from "../services/user-service";
-import { getUsers, updateUsers } from "../cache";
+import { getUsers, updateTrello, updateUsers } from "../cache";
 
 class UserController {
   async login(
@@ -115,24 +115,38 @@ class UserController {
         userId,
         password,
         isAdmin,
-      }: { userId: number; password: string; isAdmin: boolean } = req.body;
+        isDeactivate,
+      }: {
+        userId: number;
+        password: string;
+        isAdmin: boolean;
+        isDeactivate: boolean;
+      } = req.body;
       const findUser = await UserService.getOne(userId);
       if (!findUser) {
         return next(ApiError.badRequest("Пользователь не найден"));
       }
       const primaryIsAdmin = findUser.isAdmin;
-      if (findUser.isAdmin) {
+      // @ts-ignore
+      if (findUser.isAdmin || findUser.createdByUserId !== req.user.id) {
         return next(ApiError.forbidden("Недостаточно прав"));
       }
-      if (password !== "") {
+      if (isDeactivate) {
+        await UserService.editUser(userId, false, "_", true);
+      } else if (password !== "") {
         const hashPassword = bcrypt.hashSync(password, 10);
         await UserService.editUser(userId, isAdmin, hashPassword);
       } else {
         await UserService.editUser(userId, isAdmin);
       }
-      res.json("ok");
-      if (primaryIsAdmin !== isAdmin) {
+      if (primaryIsAdmin !== isAdmin || isDeactivate) {
         await updateUsers();
+        res.json("ok");
+        if (isDeactivate) {
+          await updateTrello();
+        }
+      } else {
+        res.json("ok");
       }
     } catch (e) {
       next(e);
@@ -154,7 +168,8 @@ class UserController {
         );
       }
       const hashPassword = bcrypt.hashSync(password, 10);
-      await UserService.create(name, hashPassword, isAdmin);
+      // @ts-ignore
+      await UserService.create(name, hashPassword, isAdmin, req.user.isAdmin);
       res.json("ok");
       await updateUsers();
     } catch (e) {
@@ -164,21 +179,11 @@ class UserController {
   async getAll(req: Request, res: Response, next: NextFunction) {
     try {
       const users = getUsers();
-      const filteredUsers = users.map((user) => {
-        // @ts-ignore
-        if (req.user.isAdmin) {
-          return {
-            id: user.id,
-            name: user.name,
-            isAdmin: user.isAdmin,
-          };
-        }
-        return {
-          id: user.id,
-          name: user.name,
-        };
-      });
-      res.json(filteredUsers);
+      // @ts-ignore
+      if (req.user.isAdmin) {
+        return res.json(users.admin);
+      }
+      return res.json(users.user);
     } catch (e) {
       next(e);
     }

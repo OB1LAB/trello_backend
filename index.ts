@@ -33,6 +33,10 @@ const io = new Server(server, {
   cors: { origin: process.env.CLIENT_URL },
   serveClient: false,
   transports: ["websocket"],
+  connectionStateRecovery: {
+    maxDisconnectionDuration: 2 * 60 * 1000,
+    skipMiddlewares: true,
+  },
 });
 io.use(SocketAuthHandlingMiddleware);
 io.on("connection", (socket) => {
@@ -41,7 +45,7 @@ io.on("connection", (socket) => {
   });
   socket.on(
     ServerEvents.addTask,
-    (
+    async (
       executorUserId: number,
       currentDate: Date,
       timeEnd: number,
@@ -49,7 +53,7 @@ io.on("connection", (socket) => {
       color: string,
       columnIndex: number,
     ) => {
-      SocketTrelloController.addTask(
+      await SocketTrelloController.addTask(
         socket,
         executorUserId,
         currentDate,
@@ -60,8 +64,8 @@ io.on("connection", (socket) => {
       );
     },
   );
-  socket.on(ServerEvents.addColumn, (title: string) => {
-    SocketTrelloController.addColumn(socket, title);
+  socket.on(ServerEvents.addColumn, async (title: string) => {
+    await SocketTrelloController.addColumn(socket, title);
   });
   socket.on(
     ServerEvents.grabTask,
@@ -88,13 +92,20 @@ io.on("connection", (socket) => {
   );
   socket.on(
     ServerEvents.moveColumn,
-    (oldColumnIndex: number, newColumnIndex: number) => {
-      SocketTrelloController.moveColumn(socket, oldColumnIndex, newColumnIndex);
+    async (oldColumnIndex: number, newColumnIndex: number) => {
+      await SocketTrelloController.moveColumn(
+        socket,
+        oldColumnIndex,
+        newColumnIndex,
+      );
     },
   );
-  socket.on(ServerEvents.removeColumn, (columnIndex: number) => {
-    SocketTrelloController.removeColumn(socket, columnIndex);
-  });
+  socket.on(
+    ServerEvents.removeColumn,
+    async (columnIndex: number, taskIndex: number) => {
+      await SocketTrelloController.removeColumn(socket, columnIndex, taskIndex);
+    },
+  );
   socket.on(
     ServerEvents.fakeSize,
     (
@@ -119,19 +130,46 @@ io.on("connection", (socket) => {
   });
   socket.on(
     ServerEvents.moveTask,
-    (
+    async (
       oldColumnIndex: number,
       newColumnIndex: number,
       oldTaskIndex: number,
       newTaskIndex: number,
     ) => {
-      SocketTrelloController.moveTask(
+      await SocketTrelloController.moveTask(
         socket,
         oldColumnIndex,
         newColumnIndex,
         oldTaskIndex,
         newTaskIndex,
       );
+    },
+  );
+  socket.on(
+    ServerEvents.editTask,
+    async (
+      executorUserId: number,
+      timeEnd: number,
+      content: string,
+      color: string,
+      columnIndex: number,
+      taskIndex: number,
+    ) => {
+      await SocketTrelloController.editTask(
+        socket,
+        executorUserId,
+        timeEnd,
+        content,
+        color,
+        columnIndex,
+        taskIndex,
+      );
+    },
+  );
+  socket.on(
+    ServerEvents.editColumn,
+    async (title: string, columnIndex: number) => {
+      await SocketTrelloController.editColumn(socket, title, columnIndex);
     },
   );
 });

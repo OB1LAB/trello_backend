@@ -2,6 +2,7 @@ import { NextFunction, Request, Response } from "express";
 import TrelloService from "../services/trello-service";
 import { getTrello, updateTrello } from "../cache";
 import { ICacheTrello } from "../ifaces";
+import ApiError from "../error/ApiError";
 
 const getTrelloResponse = (selfUserId: number) => {
   const trelloList: ICacheTrello = {};
@@ -43,6 +44,67 @@ class TrelloController {
         // @ts-ignore
         trello: getTrelloResponse(req.user.id),
       });
+    } catch (e) {
+      next(e);
+    }
+  }
+  async edit(
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void | object> {
+    try {
+      const {
+        trelloId,
+        trelloName,
+        accessUsers,
+      }: {
+        trelloId: number;
+        trelloName: string;
+        accessUsers: number[];
+      } = req.body;
+      const trello = await TrelloService.findById(trelloId);
+      if (!trello) {
+        return next(ApiError.badRequest(`Трелло с ID ${trelloId} не найдено`));
+      }
+      // @ts-ignore
+      if (trello.createdBy !== req.user.id) {
+        return next(ApiError.forbidden(`Недостаточно прав`));
+      }
+      trello.trelloName = trelloName;
+      await trello.setUsers(accessUsers);
+      await trello.save();
+      await updateTrello();
+      // @ts-ignore
+      res.json(getTrelloResponse(req.user.id));
+    } catch (e) {
+      next(e);
+    }
+  }
+  async disable(
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void | object> {
+    try {
+      const {
+        trelloId,
+      }: {
+        trelloId: number;
+      } = req.body;
+      const trello = await TrelloService.findById(trelloId);
+      if (!trello) {
+        return next(ApiError.badRequest(`Трелло с ID ${trelloId} не найдено`));
+      }
+      // @ts-ignore
+      if (trello.createdBy !== req.user.id) {
+        return next(ApiError.forbidden(`Недостаточно прав`));
+      }
+      trello.isDeactivate = true;
+      await trello.save();
+      await updateTrello();
+      // @ts-ignore
+      res.json(getTrelloResponse(req.user.id));
     } catch (e) {
       next(e);
     }
