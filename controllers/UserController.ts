@@ -169,7 +169,7 @@ class UserController {
       }
       const hashPassword = bcrypt.hashSync(password, 10);
       // @ts-ignore
-      await UserService.create(name, hashPassword, isAdmin, req.user.isAdmin);
+      await UserService.create(name, hashPassword, isAdmin, req.user.id);
       res.json("ok");
       await updateUsers();
     } catch (e) {
